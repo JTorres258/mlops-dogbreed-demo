@@ -13,7 +13,8 @@ X_train, X_val, y_train, y_val = train_test_split(X, y, random_state=0)
 # The set_experiment API creates a new experiment if it doesn't exist.
 mlflow.set_tracking_uri("sqlite:///mlflow.db")
 mlflow.set_experiment("Hyperparameter Tuning")
-                      
+
+
 def objective(trial):
     # Setting nested=True will create a child run under the parent run.
     with mlflow.start_run(nested=True, run_name=f"trial_{trial.number}") as child_run:
@@ -41,7 +42,8 @@ def objective(trial):
         # Make it easy to retrieve the best-performing child run later
         trial.set_user_attr("run_id", child_run.info.run_id)
         return error
-    
+
+
 # Create a parent run that contains all child runs for different trials
 with mlflow.start_run(run_name="study") as run:
     # Log the experiment settings

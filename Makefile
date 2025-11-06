@@ -11,7 +11,7 @@ test:
 
 # Verifying formatting
 format:
-	black *.py
+	black .
 
 # Verifying code standards
 lint:

@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# Set the tracking URI to a local database URI (e.g., sqlite:///mlflow.db). 
+# Set the tracking URI to a local database URI (e.g., sqlite:///mlflow.db).
 # This is recommended option for quickstart and local development.
 mlflow.set_tracking_uri("sqlite:///mlflow.db")
 mlflow.set_experiment("MLFlow Quickstart")

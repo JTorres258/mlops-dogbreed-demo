@@ -1,9 +1,15 @@
 black
 pylint
 pytest
+pytest-cov
 mlflow
 pandas
 scikit-learn
 optuna
 tensorflow
 tensorflow_datasets
+fastapi
+uvicorn[standard]
+pillow
+python-multipart
+jinja2
