@@ -3,4 +3,7 @@ pylint
 pytest
 mlflow
 pandas
-sklearn
+scikit-learn
+optuna
+tensorflow
+tensorflow_datasets

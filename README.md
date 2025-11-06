@@ -30,3 +30,19 @@ With Docker, we can avoid some of the common problems when deploying an applicat
 ### Installing Docker
 
 Docker is already included in GitHub Codespace. In case of using a local machine, visit [this link](https://docs.docker.com/get-started/get-docker/). Make sure your computer follow the basic requirements before the installation.
+
+## Introduction to MLFlow
+
+MLflow is an open-source platform that helps you track, reproduce, and deploy machine learning models.
+
+It has four main components:
+
+- Tracking – record and query experiments (parameters, metrics, artifacts, etc.)
+
+- Projects – package ML code in a reusable format
+
+- Models – manage model versions and serve them
+
+- Registry – store and manage different model versions
+
+The tracking URI tells MLflow where to log and retrieve your experiment data — essentially, where the MLflow Tracking Server is located. It’s how MLflow knows whether to store your experiment metadata: locally (in files on your machine), or remotely (in a central MLflow server or database)
