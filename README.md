@@ -1,6 +1,6 @@
 # MLOps Demo
 
-This is a demo of a simple MLOps project. Here, a CNN will be trained, tested, and deployed with the aim of detecting different dog breeds. For this purpose, TensorFlow, MLFlow, FastAPI, Docker, and GitHub actions will be used. 
+This is a demo of a simple MLOps project. Here, a CNN will be trained, tested, and deployed with the aim of detecting different breeds of dogs. For this purpose, TensorFlow, MLFlow, FastAPI, Docker, and GitHub actions will be used. 
 
 ## Dataset
 
