@@ -6,7 +6,9 @@ from pydantic import ValidationError
 
 def test_valid_yaml_loads(tmp_path):
     good_yaml = tmp_path / "config.yaml"
-    good_yaml.write_text(dedent("""
+    good_yaml.write_text(
+        dedent(
+            """
         resize: [64, 64]
         normalize: true
         dtype: float32
@@ -19,7 +21,10 @@ def test_valid_yaml_loads(tmp_path):
         batch_size: 64
         drop_remainder: false
         prefetch: true
-    """), encoding="utf-8")
+    """
+        ),
+        encoding="utf-8",
+    )
 
     cfg = load_config(good_yaml)  # returns a DataConfig if your loader does validation
     assert cfg.resize == (64, 64)
@@ -30,7 +35,9 @@ def test_valid_yaml_loads(tmp_path):
 
 def test_flip_left_right_conflicts_with_resize(tmp_path):
     bad_yaml = tmp_path / "config.yaml"
-    bad_yaml.write_text(dedent("""
+    bad_yaml.write_text(
+        dedent(
+            """
         resize: [64, 64]
         normalize: true
         dtype: float32
@@ -43,7 +50,10 @@ def test_flip_left_right_conflicts_with_resize(tmp_path):
         batch_size: 64
         drop_remainder: false
         prefetch: true
-    """), encoding="utf-8")
+    """
+        ),
+        encoding="utf-8",
+    )
 
     with pytest.raises((ValidationError, SystemExit)) as exc:
         _ = load_config(bad_yaml)

@@ -1,7 +1,13 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
+import os
+from functools import partial
+from config import load_config, DataConfig
 
-def get_dataset(split='train'):
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
+
+def get_dataset(split="train"):
     """Download and load a TensorFlow dataset.
     Args:
         split: The dataset split to load ('train', 'test').
@@ -9,91 +15,121 @@ def get_dataset(split='train'):
     Returns:
         A TensorFlow dataset object.
     """
-    
+
     # Load the dataset
     ds, ds_info = tfds.load(
         "stanford_dogs",
         split=split,
         as_supervised=True,
         with_info=True,
-        shuffle_files=True
+        shuffle_files=True,
     )
 
     return ds, ds_info
 
 
-def prepare_dataset(dataset, config):
-    """Preprocess the dataset according to the given configuration.
-
+def prepare_dataset(
+    dataset: tf.data.Dataset,
+    config: DataConfig,
+    *,
+    training: bool,
+    deterministic: bool | None = None,
+) -> tf.data.Dataset:
+    """
+    Config-driven tf.data pipeline that applies your data_preprocessing function.
+    Order: map -> cache -> (shuffle if train) -> batch -> prefetch.
     Args:
         dataset: A TensorFlow dataset to preprocess.
-        config: A dictionary containing preprocessing parameters.
-
+        config: A DataConfig object containing preprocessing parameters.
+        training: Whether the dataset is for training (enables shuffling).
+        deterministic: If set, controls the determinism of the dataset pipeline.
     Returns:
         A preprocessed TensorFlow dataset.
     """
-    # Example preprocessing steps based on config
-    if config.get("shuffle", False):
-        dataset = dataset.shuffle(buffer_size=config.get("shuffle_buffer_size", 1000))
-    
-    if config.get("batch_size"):
-        dataset = dataset.batch(config["batch_size"])
-    
-    if config.get("prefetch", False):
-        dataset = dataset.prefetch(buffer_size=tf.data.AUTOTUNE)
-    
+
+    # Optional determinism control (throughput vs. reproducibility)
+    if deterministic is not None:
+        opts = tf.data.Options()
+        opts.experimental_deterministic = bool(deterministic)
+        dataset = dataset.with_options(opts)
+
+    # Preprocessing mapping
+    map_fn = partial(data_preprocessing, config=config, training=training)
+    dataset = dataset.map(map_fn, num_parallel_calls=tf.data.AUTOTUNE)
+
+    # Cache if enabled (great for small/medium datasets or repeated epochs)
+    if config.cache:
+        dataset = dataset.cache()
+
+    # Shuffle only for training
+    if training and config.shuffle:
+        dataset = dataset.shuffle(buffer_size=config.shuffle_buffer_size)
+
+    # Batch (drop_remainder if you need static shapes)
+    dataset = dataset.batch(config.batch_size, drop_remainder=config.drop_remainder)
+
+    # Prefetch to overlap CPU prep & device compute
+    if config.prefetch:
+        dataset = dataset.prefetch(tf.data.AUTOTUNE)
+
     return dataset
 
-def data_preprocess(dataset, config_path='config/preprocess_config.yaml'):
-    """Load preprocessing configuration and apply it to the dataset.
 
+def data_preprocessing(
+    image: tf.Tensor, label: tf.int64, *, config: DataConfig, training: bool
+):
+    """Data preprocessing function applying transformations based on config.
     Args:
-        dataset: A TensorFlow dataset to preprocess.
-        config_path: Path to the YAML configuration file.
-
+        image: Input image tensor.
+        label: Corresponding label tensor.
+        config: DataConfig object with preprocessing parameters.
+        training: Boolean indicating if in training mode (enables augmentations).
     Returns:
-        A preprocessed TensorFlow dataset.
+        Preprocessed image and label tensors.
     """
 
-    # Remove additional channels
-    if single_channel: image = tf.expand_dims(image[:, :, 0], axis=-1)
-    
-    # Resize video
-    if resize_shape: image = tf.image.resize(image, resize_shape)
-    
-    # Label encoding
-    label_encoded = tf.squeeze(tf.one_hot(label, num_classes))
+    # Ensure image has rank 3
+    image = tf.ensure_shape(image, [None, None, None])  # helps shape inference
 
-    # Normalization: [0, 255] => [-1, 1] floats
-    image = tf.cast(image, tf.float32) * (1./127.5)-1 # (1./255.)
-        
-    # Training / Not training stage
-    if stage == 'train': 
-        
-        # Add random brightness
-        if augmentation['brightness']:
-            image = tf.image.random_brightness(image, augmentation['brightness'])
-                
-        # Add random contrast
-        if augmentation['contrast']:
-            image = tf.image.random_contrast(image, augmentation['contrast'][0],
-                                             augmentation['contrast'][1])
-        
-        # Add gaussian noise
-        # noise = tf.random.normal(shape=tf.shape(image)[:-1], mean=0, stddev=0.02, dtype=tf.float32)
-        # noise = tf.tile(tf.expand_dims(noise, -1), [1,1,3])
-        # image = image + noise
-        
-        # Consistent left_right_flip for entire video
-        if augmentation['flip']:
-            flip_random = tf.random.uniform(shape=[], minval=0, maxval=1, 
-                                            dtype=tf.float32)
-            option = tf.less(flip_random, 0.5)
-            image = tf.cond(option,
-                              lambda: tf.image.flip_left_right(image),
-                              lambda: tf.identity(image))
-        
-        # Adapt to the range [-1, 1]
-        image = tf.clip_by_value(image, -1, 1)
-         
-    return image, label_encoded, path # Remove for training
+    # Resize video
+    if config.resize:
+        image = tf.image.resize(image, config.resize)
+
+    # Normalization: [0, 255] => [0, 1] floats
+    if config.normalize:
+        image = tf.cast(image, tf.float32) * (1.0 / 255.0)
+        if config.dtype == "float16":
+            image = tf.cast(image, tf.float16)
+
+    # Augmentation
+    if training and config.augment:
+        aug = config.augment
+        # While deifining an if statement per augmentation is enough, here
+        # we use a more defensive style that provides a default value if some
+        # attributes are missing in the config object. Just as an example.
+        if getattr(aug, "flip_left_right", False):
+            image = tf.image.random_flip_left_right(image)
+        if getattr(aug, "flip_up_down", False):
+            image = tf.image.random_flip_up_down(image)
+        if getattr(aug, "random_crop", False):
+            crop_size = aug.random_crop
+            image = tf.image.random_crop(
+                image, size=[crop_size[0], crop_size[1], tf.shape(image)[-1]]
+            )
+
+    # Labels usually don't need modification
+    label = tf.cast(label, tf.int32)
+
+    return image, label
+
+
+if __name__ == "__main__":
+    # Example usage
+    config = load_config("./configs/config_test.yml")
+    train_ds, ds_info = get_dataset(split="train")
+    train_ds_prepared = prepare_dataset(train_ds, config, training=True)
+    for batch in train_ds_prepared.take(1):
+        images, labels = batch
+        print(tf.math.reduce_max(images), tf.math.reduce_min(images))
+        print(images.shape, labels.shape)
+        print(labels)
