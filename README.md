@@ -1,5 +1,13 @@
 # MLOps Demo
 
+This is a demo of a simple MLOps project. Here, a CNN will be trained, tested, and deployed with the aim of detecting different dog breeds. For this purpose, TensorFlow, MLFlow, FastAPI, Docker, and GitHub actions will be used. 
+
+## Dataset
+
+The Stanford Dogs dataset contains images of 120 breeds of dogs from around the world. This dataset has been built using images and annotation from ImageNet for the task of fine-grained image categorization. There are 20,580 images, out of which 12,000 are used for training and 8580 for testing. Class labels and bounding box annotations are provided for all the 12,000 images.
+
+**Source: https://www.tensorflow.org/datasets/catalog/stanford_dogs**
+
 ## Introduction to Docker
 
 **Docker** is a platform for building, running, and shipping applications in a consistent manner. It allows developers to package applications and their dependencies into lightweight, portable **containers**. These containers run consistently across different environments — from a developer’s laptop to production — without worrying about configuration differences.
