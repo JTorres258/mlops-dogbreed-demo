@@ -1,3 +1,5 @@
+[![CI](https://github.com/JTorres258/mlops-demo/actions/workflows/ci_pipeline.yml/badge.svg)](https://github.com/JTorres258/mlops-demo/actions/workflows/ci_pipeline.yml)
+
 # MLOps Demo
 
 This is a demo of a simple MLOps project. Here, a CNN will be trained, tested, and deployed with the aim of detecting different breeds of dogs. For this purpose, TensorFlow, MLFlow, FastAPI, Docker, and GitHub actions will be used. 
