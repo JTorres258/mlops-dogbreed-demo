@@ -54,7 +54,7 @@ def prepare_dataset(
 
     # Preprocessing mapping
     map_fn = partial(data_preprocessing, config=config, training=training)
-    dataset = dataset.map(map_fn, num_parallel_calls=tf.data.AUTOTUNE)
+    dataset = dataset.map(map_fn, num_parallel_calls=1)
 
     # Retrieve pipeline config
     pipe = config.pipeline
@@ -72,7 +72,7 @@ def prepare_dataset(
 
     # Prefetch to overlap CPU prep & device compute
     if pipe.prefetch:
-        dataset = dataset.prefetch(tf.data.AUTOTUNE)
+        dataset = dataset.prefetch(1)
 
     return dataset
 
@@ -172,11 +172,11 @@ if __name__ == "__main__":
     train_ds, ds_info = get_dataset(split="train")
     
     train_ds_prepared = prepare_dataset(train_ds, config, training=True)
-    # for batch in train_ds_prepared.take(1):
-    #     images, labels = batch
-    #     print(tf.math.reduce_max(images), tf.math.reduce_min(images))
-    #     print(images.shape, labels.shape)
-    #     print(labels)
+    for batch in train_ds_prepared.take(1):
+        images, labels = batch
+        print(tf.math.reduce_max(images), tf.math.reduce_min(images))
+        print(images.shape, labels.shape)
+        print(labels)
 
     for raw_img, _ in train_ds.take(1):
         print(raw_img.shape)

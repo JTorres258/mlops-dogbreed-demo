@@ -5,16 +5,16 @@ data:
 
 pipeline:
   cache: false
-  shuffle: false
-  shuffle_buffer_size: 128
-  batch_size: 1
+  shuffle: True
+  shuffle_buffer_size: 512
+  batch_size: 8
   drop_remainder: false
   prefetch: true
 
 augment:
   flip_left_right: true
   flip_up_down: false
-  random_crop: [180, 180]
+  random_crop: null
   brightness: null
 
 train:
@@ -31,3 +31,5 @@ model:
   architecture: EfficientNetV2B0
   weights: imagenet
   num_classes: 120
+  drop_rate: 0.5
+  freeze_backbone: true

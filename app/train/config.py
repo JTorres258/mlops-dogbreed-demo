@@ -63,6 +63,8 @@ class ModelConfig(BaseModel):
     architecture: str = "resnet50"
     weights: Optional[str] = None
     num_classes: Annotated[int, Field(strict=True, gt=1)] = 1000
+    drop_rate: Annotated[float, Field(strict=True, ge=0)] = 0.5
+    freeze_backbone: bool = False
 
 
 class ExperimentConfig(BaseModel):
