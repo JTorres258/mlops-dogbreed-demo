@@ -10,7 +10,7 @@ pipeline:
   cache: false
   shuffle: True
   shuffle_buffer_size: 512
-  batch_size: 16
+  batch_size: 32
   drop_remainder: false
   prefetch: true
 
@@ -23,13 +23,13 @@ augment:
 train:
   model_dir: ./models/
   checkpoint_dir: ./models/checkpoints/
-  epochs: 2
+  epochs: 50
   learning_rate: 0.0001
   optimizer: Adam        # adam | sgd | rmsprop
   loss: CategoricalCrossentropy
   metrics: ["accuracy"]
   seed: 42
-  mixed_precision: false
+  mixed_precision: true
   strategy: auto         # auto | single | mirrored | tpu
 
 model:

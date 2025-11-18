@@ -11,13 +11,18 @@ class DataConfig(BaseModel):
 
     # Preprocessing
     input_size: Tuple[
+        Annotated[int, Field(strict=True, gt=0)],
+        Annotated[int, Field(strict=True, gt=0)],
+    ] = [
+        224,
+        224,
+    ]  # (H, W) > 0
+    resize: Optional[
+        Tuple[
             Annotated[int, Field(strict=True, gt=0)],
             Annotated[int, Field(strict=True, gt=0)],
-        ] = [224, 224]  # (H, W) > 0
-    resize: Optional[Tuple[
-            Annotated[int, Field(strict=True, gt=0)],
-            Annotated[int, Field(strict=True, gt=0)],
-        ]] = None  # (H, W) > 0
+        ]
+    ] = None  # (H, W) > 0
     normalize: bool = True
     dtype: Literal["float32", "float16"] = "float32"
 
@@ -40,11 +45,12 @@ class AugmentConfig(BaseModel):
     flip_left_right: bool = False
     flip_up_down: bool = False
     random_crop: bool = False
-    brightness: Optional[float] = None # e.g., 0.1 for ±10% brightness adjustment
+    brightness: Optional[float] = None  # e.g., 0.1 for ±10% brightness adjustment
 
 
 class TrainConfig(BaseModel):
     """Configuration for training."""
+
     model_dir: Optional[str] = "./models/"
     checkpoint_dir: Optional[str] = "./models/checkpoints/"
     epochs: Annotated[int, Field(strict=True, gt=0)] = 10
@@ -54,7 +60,7 @@ class TrainConfig(BaseModel):
     metrics: list[str] = ["accuracy"]
     seed: Annotated[int, Field(strict=True, gt=0)] = 42
     mixed_precision: bool = False
-    strategy: str = "auto"         # auto | single | mirrored | tpu
+    strategy: str = "auto"  # auto | single | mirrored | tpu
 
 
 class ModelConfig(BaseModel):
@@ -65,7 +71,7 @@ class ModelConfig(BaseModel):
     num_classes: Annotated[int, Field(strict=True, gt=1)] = 1000
     drop_rate: Annotated[float, Field(strict=True, ge=0)] = 0.5
     freeze_backbone: bool = False
-    
+
 
 class ExperimentConfig(BaseModel):
     experiment_name: Optional[str] = None
@@ -90,7 +96,7 @@ class ExperimentConfig(BaseModel):
             raise ValueError("You must enable either cropping and resizing.")
 
         return self
-    
+
 
 def load_config(path: str) -> ExperimentConfig:
     """Load preprocessing configuration from a YAML file."""

@@ -6,6 +6,7 @@ from app.train.config import load_config, ExperimentConfig
 
 tf.keras.utils.set_random_seed(42)
 
+
 def get_dataset(split="train"):
     """Download and load a TensorFlow dataset.
     Args:
@@ -95,12 +96,12 @@ def data_preprocessing(
 
     # Retrieve data config
     dat = config.data
-    
+
     # Resize video to the input size
     if dat.resize:
         image = tf.image.resize(image, dat.resize, method="bilinear")
     else:
-         # Resize so that the shortest side = 256, then center crop to target_size.
+        # Resize so that the shortest side = 256, then center crop to target_size.
         h = tf.shape(image)[0]
         w = tf.shape(image)[1]
 
@@ -125,7 +126,7 @@ def data_preprocessing(
         # While deifining an if statement per augmentation is enough, here
         # we use a more defensive style that provides a default value if some
         # attributes are missing in the config object. Just as an example.
-        
+
         if getattr(aug, "brightness", 0.1):
             image = tf.image.random_brightness(image, aug.brightness)
 
@@ -181,7 +182,7 @@ if __name__ == "__main__":
     # Example usage
     config = load_config("./configs/config_test.yml")
     train_ds, ds_info = get_dataset(split="train")
-    
+
     setattr(config.pipeline, "shuffle", False)
     train_ds_prepared = prepare_dataset(train_ds, config, training=False)
     for batch in train_ds_prepared.take(1):
