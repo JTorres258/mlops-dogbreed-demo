@@ -1,7 +1,10 @@
 // .devcontainer/devcontainer.json
 {
   "name": "tf220-gpu",
-  "image": "tensorflow/tensorflow:2.20.0-gpu",
+  "build": {
+    "dockerfile": "../Dockerfile.train",
+    "context": ".."
+  },
   "runArgs": ["--gpus", "all"],
   "remoteUser": "vscode",
   "containerUser": "vscode",

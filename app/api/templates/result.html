@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Classification Result</title>
+  <style>
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      margin: 2rem;
+      color: #111827;
+      background-color: #f9fafb;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    a.back {
+      text-decoration: none;
+      color: #4b5563;
+      font-size: 0.9rem;
+    }
+    a.back:hover {
+      text-decoration: underline;
+    }
+    h1 {
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .meta {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      align-items: flex-start;
+    }
+    .panel {
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.05);
+      background-color: #ffffff;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      display: block;
+    }
+    .label {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .pill {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background-color: #eef2ff;
+      color: #4f46e5;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .btn {
+      display:inline-block;
+      margin-top: 1.25rem;
+      padding: .6rem .9rem;
+      border-radius: 10px;
+      background: #111827;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .btn:hover {
+      background: #000000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p><a href="/" class="back">← Back</a></p>
+
+    <h1>Classification Result</h1>
+    <p class="meta">
+      {% if filename %}
+        File: <strong>{{ filename }}</strong>
+      {% else %}
+        Uploaded image
+      {% endif %}
+    </p>
+
+    <div class="grid">
+      <div class="panel">
+        <h3>Original image</h3>
+        {% if image_data_url %}
+          <img src="{{ image_data_url }}" alt="uploaded image" />
+        {% else %}
+          <p>No image preview available.</p>
+        {% endif %}
+      </div>
+
+      <div class="panel">
+        <h3>Prediction</h3>
+        <p class="label">{{ prediction }}</p>
+
+        {% if prediction_index is not none %}
+          <p class="pill">Class index: {{ prediction_index }}</p>
+        {% endif %}
+
+        <p class="meta">
+          This is the predicted dog breed based on the uploaded image.
+        </p>
+
+        <a href="/" class="btn">Classify another image</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

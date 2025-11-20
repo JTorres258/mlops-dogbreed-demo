@@ -1,0 +1,11 @@
+black
+pylint
+pytest
+pytest-cov
+mlflow
+scikit-learn
+optuna
+tensorflow_datasets
+pillow
+pydantic
+pyyaml

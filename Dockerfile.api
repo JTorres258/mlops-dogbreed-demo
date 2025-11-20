@@ -1,0 +1,27 @@
+# Slim Python base image (CPU inference)
+FROM python:3.11-slim
+
+# Prevent Python from buffering stdout/stderr
+ENV PYTHONUNBUFFERED=1
+# Quieter TF logs (0 = all, 3 = only FATAL)
+ENV TF_CPP_MIN_LOG_LEVEL=2
+
+WORKDIR /app
+
+# System dependencies (minimal)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Additional dependencies
+COPY requirements_api.txt .
+RUN python3 -m pip install --upgrade pip && \
+    pip install --ignore-installed -r requirements_api.txt
+
+COPY app/api ./api
+COPY app/train/models ./models
+
+
+# Start FastAPI with Uvicorn
+# --reload is handy for dev; remove it in production if you want
+CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

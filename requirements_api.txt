@@ -2,12 +2,8 @@ black
 pylint
 pytest
 pytest-cov
-mlflow
-pandas
 scikit-learn
-optuna
-tensorflow[and-cuda]
-tensorflow_datasets
+tensorflow==2.20.0
 fastapi
 uvicorn[standard]
 pillow
