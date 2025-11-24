@@ -3,7 +3,7 @@
 # Installing libraries
 install:
 	pip install --upgrade pip &&\
-		pip install -r requirements.txt
+		pip install -r requirements_train.txt
 
 # Applying some tests
 test:
